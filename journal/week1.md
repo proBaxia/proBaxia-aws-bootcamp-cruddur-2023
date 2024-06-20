@@ -231,8 +231,45 @@ docker compose up
 ### FORNTEND APPLICATION VIEW 
 
 ![alt text](images/image11.png)
+![alt text](images/image12.png)
+![alt text](images/image13.png)
+![alt text](images/image14.png)
 
 
+# Week 1 - Create the notification feature (Backend and Front)
+
+if i click on notification button 
+
+![alt text](images/image15.png)
+
+no page to display notification 
+
+![alt text](images/image16.png)
+
+let's add an endpoint to our notification 🔔 button 
+go to our working directory cd into `backend-flask` open the `openapi-3.0.yaml` file. on vscode click on ~Api~ extension make sure you have install the extention OpenAPI (Swagger) on your vscode or gitpod click on ~Paths~ create a part and name it `/api/activities/notifications` see thr image below 
+
+![alt text](images/image17.png)
+
+
+open api for notifications sorce code 
+~~~
+ /api/activities/notifications:
+    get:
+      description: 'Return a field of activities for all of those that i  follow'
+      tags:
+        - activities
+      parameters: []
+      responses:
+        '200':
+          description: Return an array of activities 
+          content:
+            application/json:
+             schema:
+               type: array
+               items:
+                 $ref: '#/components/schemas/Activity"
+~~~
 
 
 
