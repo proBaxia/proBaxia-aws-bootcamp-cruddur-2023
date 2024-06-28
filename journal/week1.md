@@ -150,6 +150,21 @@ https://4567-probaxia-probaxiaawsboo-sue6j7331dj.ws-eu114.gitpod.io/api/activiti
 docker ps
 docker images
 
+## Check Container Logs
+~~~sh
+docker logs CONTAINER_ID -f
+docker logs backend-flask -f
+docker logs $CONTAINER_ID -f
+~~~
+## Gain Access to a Container
+~~~js
+docker exec CONTAINER_ID -it /bin/bash
+~~~
+# Delete an Image
+~~~sh
+docker image rm backend-flask --force
+~~~
+
 ## Containerize Frontend
 ### RUN NPM Install
 We have to run NPM Install before building the container since it needs to copy the contents of node_modules
@@ -506,3 +521,112 @@ Frontend-react-Notifications Page
 
 ![alt text](images/image27.png)
 
+# Week 1 - DynamoDB and Postgres vs Docker
+
+### Adding DynamaDB Local and Postgres 
+
+we are going to use Postgres and DynamoDB local in funture labs We can bring them in as container and references them externally
+
+Let's  intergtratr the following into existing docker compose file 
+
+
+ copy and paste the Dynamodb code to your `docker-compose` file
+~~~js
+  dynamodb-local:
+    # https://stackoverflow.com/questions/67533058/persist-local-dynamodb-data-in-volumes-lack-permission-unable-to-open-databa
+    # We needed to add user:root to get this working.
+    user: root
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
+    image: "amazon/dynamodb-local:latest"
+    container_name: dynamodb-local
+    ports:
+      "- "8000:8000
+    volumes:
+      - "./docker/dynamodb:/home/dynamodblocal/data"
+    working_dir: /home/dynamodblocal
+
+  postgres-local
+
+  db:
+    image: postgres:13-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports
+      - '5432:5432'
+    volumes: 
+      - db:/var/lib/postgresql/data
+volumes:
+  db:
+    driver: local     
+~~~
+
+### Volumes `we map the volume already in our docer compose file ` 
+directory volume mapping
+~~~sh
+volumes: 
+- "./docker/dynamodb:/home/dynamodblocal/data"
+~~~
+
+directory volume mapping
+~~~sh
+volumes: 
+  - db:/var/lib/postgresql/data
+
+volumes:
+  db:
+    driver: local
+~~~
+
+![alt text](images/image28.png)
+![alt text](images/image29.png)
+
+
+after that do `docker compose up`
+copy and past this link to your terminal 
+#### Create a 
+~~~
+aws dynamodb create-table \
+    --endpoint-url http://localhost:8000 \
+    --table-name Music \
+    --attribute-definitions \
+        AttributeName=Artist,AttributeType=S \
+        AttributeName=SongTitle,AttributeType=S \
+    --key-schema AttributeName=Artist,KeyType=HASH AttributeName=SongTitle,KeyType=RANGE \
+    --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 \
+    --table-class STANDARD
+~~~
+####  create and  item
+ ~~~
+ aws dynamodb put-item \
+    --endpoint-url http://localhost:8000 \
+    --table-name Music \
+    --item \
+        '{"Artist": {"S": "No One You Know"}, "SongTitle": {"S": "Call Me Today"}, "AlbumTitle": {"S": "Somewhat Famous"}}' \
+    --return-consumed-capacity TOTAL  
+ ~~~
+#### List Tables List Tables
+~~~
+aws dynamodb list-tables --endpoint-url http://localhost:8000
+~~~
+(References)[https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Tools.CLI.html]
+Example of using DynamoDB local (link)[https://github.com/100DaysOfCloud/challenge-dynamodb-local]
+
+#### install Postgress client drive in your gitpod.yml or copy and paste it to your terminal 
+~~~js
+  - name: postgres
+    init: |
+      curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc|sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg
+      echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" |sudo tee  /etc/apt/sources.list.d/pgdg.list
+      sudo apt update
+      sudo apt install -y postgresql-client-13 libpq-dev
+~~~      
+- install SQLTools PostgreSQL/Cockroach Drive extension 
+- restart your terminal and paste the code below to check it you have postgres
+
+
+~~~
+psql  -Upostgres --host localhost
+~~~
+![alt text](images/image30.png)
