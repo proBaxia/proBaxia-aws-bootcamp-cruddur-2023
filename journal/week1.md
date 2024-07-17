@@ -2,7 +2,7 @@
 
 clone the repo from [github](https://github.com/proBaxia/proBaxia-aws-bootcamp-cruddur-2023)
 
-cd into backendend 
+cd into backend-flask
 
 create a Dockerfile 
 
@@ -56,14 +56,16 @@ pip install flask
 export FRONTEND_URL="*"
 export BACKEND_URL="*"
 ## Bring on the app by runing the code below 
+~~~
 python3 -m flask run --host=0.0.0.0 --port=4567
+~~~
 
 ![alt text](images/image2.png)
 
 
 - make sure to unlock the port on the port tab
 - open the link for 4567 in your browser
-- append to the url to /api/activities/home
+- append to the url to `/api/activities/home`
 you should get back json
 - on your port make sure your port state is public and click on the link on your port Address 
 
@@ -103,6 +105,9 @@ docker images
 
 ![alt text](images/image5.png)
 
+![alt text](images/image0.png)
+
+
 ## Run Container
 ~~~
 docker container run --rm -p 4567:4567  backend-flask
@@ -116,7 +121,9 @@ docker container run --rm -p 4567:4567  backend-flask
 
 - when you click on it it will give you error like this 
 
-![alt text](images/image4.png)
+![alt text](images/image-1.png)
+
+
 
 - reason we are getting this error is because we haven't set the environment variables 
 so let run this command 
@@ -188,11 +195,31 @@ EXPOSE ${PORT}
 CMD ["npm", "start"]
 ~~~
 
+![alt text](images/image8.png)
+
+### Build Container for frontend-react-js
+
+~~~
+docker build -t frontend-react-js .
+~~~
+### Run Container
+~~~sh
+docker run -p 3000:3000 -d frontend-react-js
+
+docker ps # to view runing containers 
+
+docker stop ContainersID # to stop runing containers 
+~~~
+
+![alt text](images/image-2.png)
+
+#### we can use `docker compose up / docker-compose up` to build and run the Container 
+
 ### Multiple Containers
 Create a docker-compose file
 Create `docker-compose.yml` at the root of your project to run backend and frontend together 
 
-~~~
+~~~yml
 version: "3.8"
 services:
   backend-flask:
@@ -220,18 +247,7 @@ networks:
     driver: bridge
     name: cruddur
 ~~~
-
-![alt text](images/image8.png)
-
-### Build Container
-~~~
-docker build -t frontend-react-js ./frontend-react-js
-~~~
-### Run Container
-~~~
-docker run -p 3000:3000 -d frontend-react-js
-~~~
-#### we can use `docker compose up / docker-compose up` to build and run the Container 
+- Bring it up with the code below
 ~~~
 docker-compose up
 docker compose up
@@ -524,6 +540,7 @@ Frontend-react-Notifications Page
 # Week 1 - DynamoDB and Postgres vs Docker
 
 ### Adding DynamaDB Local and Postgres 
+- make sure you have install AWS cli and login 
 
 we are going to use Postgres and DynamoDB local in funture labs We can bring them in as container and references them externally
 
@@ -562,7 +579,7 @@ volumes:
     driver: local     
 ~~~
 
-### Volumes `we map the volume already in our docer compose file ` 
+### Volumes `we map the volume already in our docker compose file ` 
 directory volume mapping
 ~~~sh
 volumes: 
@@ -585,8 +602,9 @@ volumes:
 
 after that do `docker compose up`
 copy and past this link to your terminal 
-#### Create a 
-~~~
+
+#### Create a dynamodb create-table
+~~~sh
 aws dynamodb create-table \
     --endpoint-url http://localhost:8000 \
     --table-name Music \
@@ -610,6 +628,10 @@ aws dynamodb create-table \
 ~~~
 aws dynamodb list-tables --endpoint-url http://localhost:8000
 ~~~
+
+![alt text](images/image-3.png)
+
+
 (References)[https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Tools.CLI.html]
 Example of using DynamoDB local (link)[https://github.com/100DaysOfCloud/challenge-dynamodb-local]
 
